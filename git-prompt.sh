@@ -123,14 +123,25 @@ __posh_git_ps1 ()
     PS1=$ps1pc_prefix$gitstring$ps1pc_suffix
 }
 
-__posh_color () {
+__posh_color_in () {
     if [ -n "$ZSH_VERSION" ]; then
-        echo %{$1%}
+        declare $1="'%{'"
     elif [ -n "$BASH_VERSION" ]; then
-        echo \\[$1\\]
+        declare $1="'\\['"
     else
         # assume Bash anyway
-        echo \\[$1\\]
+        declare $1="'\\['"
+    fi
+}
+
+__posh_color_out () {
+    if [ -n "$ZSH_VERSION" ]; then
+        $1="'%}'"
+    elif [ -n "$BASH_VERSION" ]; then
+        declare $1='\]'
+    else
+        # assume Bash anyway
+        declare $1="'\\]'"
     fi
 }
 
@@ -140,44 +151,48 @@ __posh_git_echo () {
         return;
     fi
 
-    local DefaultForegroundColor=$(__posh_color '\e[m') # Default no color
+    local ColorIn ColorOut
+    __posh_color_in ColorIn
+    __posh_color_out ColorOut
+
+    local DefaultForegroundColor="${ColorIn}"'\e[m'"${ColorOut}" # Default no color
     local DefaultBackgroundColor=
 
     local BeforeText=' ['
-    local BeforeForegroundColor=$(__posh_color '\e[1;33m') # Yellow
+    local BeforeForegroundColor="${ColorIn}"'\e[1;33m'"${ColorOut}" # Yellow
     local BeforeBackgroundColor=
     local DelimText=' |'
-    local DelimForegroundColor=$(__posh_color '\e[1;33m') # Yellow
+    local DelimForegroundColor="${ColorIn}"'\e[1;33m'"${ColorOut}" # Yellow
     local DelimBackgroundColor=
 
     local AfterText=']'
-    local AfterForegroundColor=$(__posh_color '\e[1;33m') # Yellow
+    local AfterForegroundColor="${ColorIn}"'\e[1;33m'"${ColorOut}" # Yellow
     local AfterBackgroundColor=
 
-    local BranchForegroundColor=$(__posh_color '\e[1;36m')  # Cyan
+    local BranchForegroundColor="${ColorIn}"'\e[1;36m'"${ColorOut}"  # Cyan
     local BranchBackgroundColor=
-    local BranchAheadForegroundColor=$(__posh_color '\e[1;32m') # Green
+    local BranchAheadForegroundColor="${ColorIn}"'\e[1;32m'"${ColorOut}" # Green
     local BranchAheadBackgroundColor=
-    local BranchBehindForegroundColor=$(__posh_color '\e[0;31m') # Red
+    local BranchBehindForegroundColor="${ColorIn}"'\e[0;31m'"${ColorOut}" # Red
     local BranchBehindBackgroundColor=
-    local BranchBehindAndAheadForegroundColor=$(__posh_color '\e[1;33m') # Yellow
+    local BranchBehindAndAheadForegroundColor="${ColorIn}"'\e[1;33m'"${ColorOut}" # Yellow
     local BranchBehindAndAheadBackgroundColor=
 
     local BeforeIndexText=''
-    local BeforeIndexForegroundColor=$(__posh_color '\e[1;32m') # Dark green
+    local BeforeIndexForegroundColor="${ColorIn}"'\e[1;32m'"${ColorOut}" # Dark green
     local BeforeIndexBackgroundColor=
 
-    local IndexForegroundColor=$(__posh_color '\e[1;32m') # Dark green
+    local IndexForegroundColor="${ColorIn}"'\e[1;32m'"${ColorOut}" # Dark green
     local IndexBackgroundColor=
 
-    local WorkingForegroundColor=$(__posh_color '\e[0;31m') # Dark red
+    local WorkingForegroundColor="${ColorIn}"'\e[0;31m'"${ColorOut}" # Dark red
     local WorkingBackgroundColor=
 
-    local StashForegroundColor=$(__posh_color '\e[0;34m') # Darker blue
+    local StashForegroundColor="${ColorIn}"'\e[0;34m'"${ColorOut}" # Darker blue
     local StashBackgroundColor=
     local StashText='$'
 
-    local RebaseForegroundColor=$(__posh_color '\e[0m') # reset
+    local RebaseForegroundColor="${ColorIn}"'\e[0m'"${ColorOut}" # reset
     local RebaseBackgroundColor=
 
     local EnableFileStatus=`git config --bool bash.enableFileStatus`
