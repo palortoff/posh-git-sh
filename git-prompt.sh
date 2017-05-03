@@ -147,8 +147,10 @@ __posh_color_out () {
 
 # Echoes the git status string.
 __posh_git_echo () {
-    if [ "$(git config --bool bash.enableGitStatus)" = 'false' ]; then
-        return;
+    if [ ! -z ${POSH_ENABLE_GIT_STATUS} ]; then
+        if [ "${POSH_ENABLE_GIT_STATUS}" == "false" ] || [ "$(git config --bool bash.enableGitStatus)" = 'false' ]; then
+            return;
+        fi
     fi
 
     local ColorIn ColorOut
@@ -195,25 +197,25 @@ __posh_git_echo () {
     local RebaseForegroundColor="${ColorIn}"'\e[0m'"${ColorOut}" # reset
     local RebaseBackgroundColor=
 
-    local EnableFileStatus=`git config --bool bash.enableFileStatus`
+    local EnableFileStatus=${POSH_ENABLE_FILE_STATUS:-`git config --bool bash.enableFileStatus`}
     case "$EnableFileStatus" in
         true)  EnableFileStatus=true ;;
         false) EnableFileStatus=false ;;
         *)     EnableFileStatus=true ;;
     esac
-    local ShowStatusWhenZero=`git config --bool bash.showStatusWhenZero`
+    local ShowStatusWhenZero=${POSH_SHOW_STATUS_WHEN_ZERO:-`git config --bool bash.showStatusWhenZero`}
     case "$ShowStatusWhenZero" in
         true)  ShowStatusWhenZero=true ;;
         false) ShowStatusWhenZero=false ;;
         *)     ShowStatusWhenZero=false ;;
     esac
-    local ShowStashState=`git config --bool bash.showStashState`
+    local ShowStashState=${POSH_SHOW_STASH_STATE:-`git config --bool bash.showStashState`}
     case "$ShowStashState" in
         true)  ShowStashState=true ;;
         false) ShowStashState=false ;;
         *)     ShowStashState=true ;;
     esac
-    local EnableStatusSymbol=`git config --bool bash.enableStatusSymbol`
+    local EnableStatusSymbol=${POSH_ENABLE_STATUS_SYMBOL:-`git config --bool bash.enableStatusSymbol`}
     case "$EnableStatusSymbol" in
         true)  EnableStatusSymbol=true ;;
         false) EnableStatusSymbol=false ;;
